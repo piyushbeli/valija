@@ -1,0 +1,27 @@
+{
+  "name": "my-dev-parse-server",
+  "version": "0.1.0",
+  "description": "My Development Parse Server with CloudCode",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ParsePlatform/parse-server.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.3",
+    "lodash": "^4.17.11",
+    "node-springboard": "0.0.31",
+    "parse": "~1.8.0",
+    "parse-server": "~2.2.2",
+    "shopify-api-node": "^2.15.3"
+  },
+  "scripts": {
+    "dev": "NODE_ENV=Local node index.js",
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=4.3"
+  }
+}
