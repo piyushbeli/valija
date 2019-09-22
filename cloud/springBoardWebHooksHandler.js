@@ -11,6 +11,7 @@ const logger = require('./utils/logger');
 const Style1Counter = require('./models/style1Counter');
 
 const ShopifyService = require('./shopifyIntegration');
+const Klaviyo  = require('./klaviyo');
 const Cache = require('./utils/cache');
 
 class SpringBoardWebHooksHandler {
@@ -28,11 +29,11 @@ class SpringBoardWebHooksHandler {
         });
 
         this._shopify = new ShopifyService(config);
+        this._klaviyo = new Klaviyo();
 
         // Define the routes for the webhooks
         this._router.use(BodyParser.json());
-        this._router.use('/', this._validateAuthenticity.bind(this));
-        this._router.post('/item-created', this._handleItemCreated.bind(this));
+        this._router.post('/', this._validateAuthenticity.bind(this), this._handleWebhookEvent.bind(this));
     }
 
     getRouter() {
@@ -86,9 +87,7 @@ class SpringBoardWebHooksHandler {
             }
 
             // Now register a new webhook based on current settings/config
-            for (let event in Constants.SPRING_BOARD_WEB_HOOK_EVENTS) {
-                promises.push(this._registerWebHooks(Constants.SPRING_BOARD_WEB_HOOK_EVENTS[event]));
-            }
+            promises.push(this._registerWebHook());
             return Promise.all(promises);
         } catch (e) {
             throw e;
@@ -104,50 +103,52 @@ class SpringBoardWebHooksHandler {
         }
     }
 
-    async _registerWebHooks(event) {
-        try {
-            switch (event) {
-                case Constants.SPRING_BOARD_WEB_HOOK_EVENTS.ITEM_CREATED:
-                    await this._registerItemCreatedWebHook();
-                    break;
-                default:
-                    logger.error(`Creation of Webhook for event ${event} is not supported currently`);
-            }
-            logger.info({
-                msg: 'SpringBoardWebHooksHandler:_registerWebHooks:: Successfully created the webhook',
-                event
-            });
-        } catch (e) {
-            logger.info({
-                msg: 'SpringBoardWebHooksHandler:_registerWebHooks:: Error occurred while creating the webhook',
-                event
-            });
-            throw e.response.data.details;
-        }
-    }
-
     async _deleteWebHook(id) {
         return this._client.delete('webhooks/' + id);
     }
 
-    async _registerItemCreatedWebHook() {
+    async _registerWebHook() {
         const payload = {
-            url: this._config['HOST_URL'] + '/webhook/springboard/item-created?secret=' + this._config['WEB_HOOK_SECRET'],
-            events: ['item_created', 'item_updated']
+            url: this._config['HOST_URL'] + '/webhook/springboard?secret=' + this._config['WEB_HOOK_SECRET'],
+            events: Utils.getInterestedSpringboardEvents()
         };
-        return this._client.post('webhooks', payload);
+        if (payload.events.length) {
+            return this._client.post('webhooks', payload);
+        } else {
+            logger.info(`######Server configuration has not enabled any webhook event#######`);
+        }
     }
-
-    // Same method also handles the item_updated
-    async _handleItemCreated(req, res) {
+    
+    async _handleWebhookEvent (req, res) {
         const data = req.body;
         logger.info({
-            msg: 'SpringBoardWebHooksHandler:_handleItemCreated::Webhook received',
+            msg: 'SpringBoardWebHooksHandler:_handleWebhookEvent::Webhook received',
             data
         });
         // Immediately return the success. If we wait for the operations then it is possible that Springboard will retry the same webhook
         res.send('success');
+    
+        // Lets set the status in the cache if the item is already processing so that same springboard item is not processed multiple times.
+        if (this._isSpringBoardItemProcessing(data)) {
+            return;
+        } else {
+            this._setSpringBoardItemProcessing(data);
+        }
+        
+        switch (Utils.identifyWebhookEvent(data)) {
+            case Constants.SPRING_BOARD_WEB_HOOK_EVENTS.CUSTOMER_UPDATED:
+                await this._handleCustomerUpdated(data);
+                break;
+            case Constants.SPRING_BOARD_WEB_HOOK_EVENTS.ITEM_UPDATED:
+                await this._handleItemCreated(data);
+                break;
+            default:
+                logger.error(`Webhook event is not suppored for the above data`);
+        }
+    }
 
+    // Same method also handles the item_updated
+    async _handleItemCreated(data) {
         // We need to massage the custom fields
         const custom = data.custom;
         const id = data.id;
@@ -169,19 +170,11 @@ class SpringBoardWebHooksHandler {
             promises.push(this._updateItem(data.id, {public_id: upc, custom}));
         }
 
-        // Lets set the status in the cache if the item is already processing so that same springboard item is not processed multiple times.
-        if (this._isSpringBoardItemProcessing(data)) {
-            return;
-        } else {
-            this._setSpringBoardItemProcessing(data);
-        }
-
         promises.push(this._handleShopifyChanges(data));
 
         try {
             await Promise.all(promises);
             // After processing the webhook lets remove the processing status from cache
-            this._springBoardItemProcessed(data);
         } catch (e) {
             logger.error({
                 msg: 'SpringBoardWebHooksHandler:_handleItemCreated:: Error occurred',
@@ -191,6 +184,34 @@ class SpringBoardWebHooksHandler {
                 // stack: e.stack
             });
             // After processing the webhook lets remove the processing status from cache
+        } finally {
+            this._springBoardItemProcessed(data);
+    
+        }
+    }
+    
+    async _handleCustomerUpdated (data) {
+    	if (!data.email) {
+    		logger.info(`Email does not exist for the customer ${data.id}. We cannot sync to klaviyo`);
+	    }
+	    try {
+            let person = await this._klaviyo.findPersonInList(data.email);
+            if (!person) {
+                logger.info(`Person does not exists in klaviyo - springboard imported list with email ${data.email}. Lets add it`);
+                person = await this._klaviyo.addPersonToList(data);
+                logger.info(`Added a new person in klaviyo for email ${data.email} with id ${person.id}`);
+            } else {
+                logger.info(`Person with email ${data.email} already exists in klaviyo with person id ${person.id}. Lets update it`);
+                await this._klaviyo.updatePerson(person.id, data);
+            }
+        
+        } catch (e) {
+	        logger.error({
+                msg: 'SpringBoardWebHooksHandler:_handleCustomerUpdated:; Error occurred',
+                err: e.toString(),
+                // stack: e.stack
+            });
+        } finally {
             this._springBoardItemProcessed(data);
         }
     }

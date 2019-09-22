@@ -5,7 +5,10 @@ module.exports = {
     },
 
     SPRING_BOARD_WEB_HOOK_EVENTS: {
-        ITEM_CREATED: 'item_created'
+        ITEM_CREATED: 'item_created',
+        ITEM_UPDATED: 'item_updated',
+        CUSTOMER_CREATED: 'customer_created',
+        CUSTOMER_UPDATED: 'customer_updated'
     },
     
     CLASS_NAME: {
@@ -102,5 +105,17 @@ module.exports = {
         'SEOUL',
         'INDIA',
         'JUST ARRIVED'
-    ]
+    ],
+    
+    SPRING_BOARD_TO_KLAVIYO_MAPPING: {
+        first_name: '$first_name',
+        last_name: '$last_name',
+        email: '$email',
+        email: 'email',
+        'address.city': '$city',
+        'address.country': '$country',
+        'address.state': '$region',
+        'address.postal_code': '$zip',
+        'custom.phone': '$phone_number'
+    }
 };
