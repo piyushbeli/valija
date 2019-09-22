@@ -1,12 +1,13 @@
-var path        = require('path');
-var express     = require('express');
-var ParseServer = require('parse-server').ParseServer;
-var databaseUri = process.env.DATABASE_URI || process.env.MONGODB_URI;
+require('dotenv').config();
+const path        = require('path');
+const express     = require('express');
+const ParseServer = require('parse-server').ParseServer;
+const databaseUri = process.env.DATABASE_URI || process.env.MONGODB_URI;
 
 databaseUri || console.log('DATABASE_URI not specified, falling back to localhost.');
 
-var port = process.env.PORT || 1337;
-var api = new ParseServer(
+const port = process.env.PORT || 1337;
+const api = new ParseServer(
 {
   databaseURI: databaseUri                 || 'mongodb://localhost:27017/valija',
   appId      : process.env.APP_ID          || 'myAppId',
@@ -27,7 +28,7 @@ var api = new ParseServer(
 // If you wish you require them, you can set them as options in the initialization above:
 // javascriptKey, restAPIKey, dotNetKey, clientKey
 
-var app = express();
+const app = express();
 
 // Serve static assets from the /public folder
 app.use(express.static(path.join(__dirname, '/public')));
@@ -38,11 +39,11 @@ app.use('/', require('./cloud/main.js').app);
 
 
 // Serve the Parse API on the /parse URL prefix
-var mountPath = process.env.PARSE_MOUNT || '/1';
+const mountPath = process.env.PARSE_MOUNT || '/1';
 app.use(mountPath, api);
 
 
-var httpServer = require('http').createServer(app);
+const httpServer = require('http').createServer(app);
 httpServer.listen(port, function(){ console.log('Running on http://localhost:' + port); });
 
 // This will enable the Live Query real-time server

@@ -11,6 +11,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
+    "dotenv": "^8.1.0",
     "lodash": "^4.17.11",
     "node-springboard": "0.0.31",
     "parse": "~1.8.0",

@@ -17,7 +17,7 @@ const ShopifyRequestBuilder = require('./shopifyRequestBuilder');
 
 
 async function initialize() {
-    const config = await Utils.getConfig();
+    const config = Utils.getConfig();
     logger.info('Config used');
     logger.info(config);
 

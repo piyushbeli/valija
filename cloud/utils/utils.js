@@ -5,17 +5,8 @@ const _ = require('lodash');
 const logger = require('./logger');
 
 class Utils {
-    static async getConfig() {
-        let config;
-        if (process.env.NODE_ENV === 'Local') {
-            logger.info('Be aware ::: Using local configuration');
-            config = require('../../conf/local.conf');
-        } else {
-            config =  await Parse.Config.get();
-            config = config.attributes;
-        }
-
-        return config;
+    static getConfig() {
+        return process.env;
     }
 
     static getParseObjectByClassName(className) {
