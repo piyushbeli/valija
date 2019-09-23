@@ -9,10 +9,9 @@ const Constants = require('./utils/constants');
 const logger = require('./utils/logger');
 
 class ShopifyRequestBuilder {
-    constructor (config) {
-        this._config = config;
+    constructor () {
         this._client = Axios.create({
-            baseURL: `https://${this._config.SHOPIFY_API_KEY}:${this._config.SHOPIFY_PASSWORD}@${this._config.SHOPIFY_SHOP_NAME}.myshopify.com/admin/`,
+            baseURL: `https://${process.env.SHOPIFY_API_KEY}:${process.env.SHOPIFY_PASSWORD}@${process.env.SHOPIFY_SHOP_NAME}.myshopify.com/admin/`,
         });
     }
 

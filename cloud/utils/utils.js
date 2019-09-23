@@ -17,6 +17,20 @@ class Utils {
         const ParseObj = Utils.getParseObjectByClassName(className);
         return new Parse.Query(ParseObj);
     };
+    
+    static getInterestedSpringboardEvents () {
+        const events = [];
+        if (process.env.ENABLE_KLAVIYA_SYNC === 'true') {
+            events.push(Constants.SPRING_BOARD_WEB_HOOK_EVENTS.CUSTOMER_CREATED);
+            events.push(Constants.SPRING_BOARD_WEB_HOOK_EVENTS.CUSTOMER_UPDATED);
+        }
+        if (process.env.ENABLE_SHOPIFY_SYNC === 'true') {
+            events.push(Constants.SPRING_BOARD_WEB_HOOK_EVENTS.ITEM_UPDATED);
+            events.push(Constants.SPRING_BOARD_WEB_HOOK_EVENTS.ITEM_CREATED);
+        }
+        
+        return events;
+    }
 
     // Source: https://github.com/abadri/GTINGenerator/blob/master/index.js
     static calculateCheckDigit(gtin) {
@@ -76,7 +90,24 @@ class Utils {
     }
 
     static getSpringBoardItemKey(payload) {
-        return payload.id + '_' + payload.custom.style1;
+        return payload.id;
+    }
+    
+    // For us, it does not matter if it's a create or update event
+    static identifyWebhookEvent (payload) {
+        if ('first_name' in payload && 'email' in payload) {
+            return Constants.SPRING_BOARD_WEB_HOOK_EVENTS.CUSTOMER_UPDATED;
+        } else {
+            return Constants.SPRING_BOARD_WEB_HOOK_EVENTS.ITEM_UPDATED;
+        }
+    }
+    
+    static toBase64 (arg) {
+        if (typeof arg === 'object') {
+            return new Buffer(JSON.stringify(arg)).toString('base64');
+        } else {
+            return new Buffer(arg).toString('base64');
+        }
     }
 }
 
