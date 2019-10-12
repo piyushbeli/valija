@@ -23,6 +23,7 @@ class Utils {
         if (process.env.ENABLE_KLAVIYA_SYNC === 'true') {
             events.push(Constants.SPRING_BOARD_WEB_HOOK_EVENTS.CUSTOMER_CREATED);
             events.push(Constants.SPRING_BOARD_WEB_HOOK_EVENTS.CUSTOMER_UPDATED);
+            events.push(Constants.SPRING_BOARD_WEB_HOOK_EVENTS.SALES_TRANSACTION_COMPLETED);
         }
         if (process.env.ENABLE_SHOPIFY_SYNC === 'true') {
             events.push(Constants.SPRING_BOARD_WEB_HOOK_EVENTS.ITEM_UPDATED);
@@ -97,6 +98,8 @@ class Utils {
     static identifyWebhookEvent (payload) {
         if ('first_name' in payload && 'email' in payload) {
             return Constants.SPRING_BOARD_WEB_HOOK_EVENTS.CUSTOMER_UPDATED;
+        } else if ('type' in payload && payload.type === 'Ticket') {
+            return Constants.SPRING_BOARD_WEB_HOOK_EVENTS.SALES_TRANSACTION_COMPLETED;
         } else {
             return Constants.SPRING_BOARD_WEB_HOOK_EVENTS.ITEM_UPDATED;
         }
@@ -104,9 +107,9 @@ class Utils {
     
     static toBase64 (arg) {
         if (typeof arg === 'object') {
-            return new Buffer(JSON.stringify(arg)).toString('base64');
+            return Buffer.from(JSON.stringify(arg)).toString('base64');
         } else {
-            return new Buffer(arg).toString('base64');
+            return Buffer.from(arg).toString('base64');
         }
     }
 }

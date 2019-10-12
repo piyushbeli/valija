@@ -79,6 +79,25 @@ class Klaviyo {
         }
     }
     
+    /**
+     *
+     * @param email: To uniquely identify a person in Klaviyo
+     * @param eventId: springboard's public_id for the event
+     * @param amount: amount
+     * @param activityData: Rest of the data which we want to capture
+     * @param timestamp: when the activity/event happened
+     * @returns {Promise<void>}
+     */
+    async trackSalesTransactionCompletedEvent (email, eventId, amount, activityData, timestamp = Date.now()) {
+        try {
+            const body = {event: Constants.KLAVIYO_EVENTS.SALES_TRANSACTION_COMPLETED, token: process.env.KLAVIYO_PUBLIC_KEY, customer_properties: {$email: email},
+                properties: activityData, time: timestamp};
+            await this._client.get(`track?data=${toBase64(body)}`);
+        } catch (e) {
+            throw e;
+        }
+    }
+    
     _mapSpringboardCustomerToKlaviyo (data) {
         const person = {};
         _.forOwn(Constants.SPRING_BOARD_TO_KLAVIYO_MAPPING, (value, key) => {

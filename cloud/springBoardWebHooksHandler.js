@@ -139,6 +139,9 @@ class SpringBoardWebHooksHandler {
             case Constants.SPRING_BOARD_WEB_HOOK_EVENTS.CUSTOMER_UPDATED:
                 await this._handleCustomerUpdated(data);
                 break;
+            case Constants.SPRING_BOARD_WEB_HOOK_EVENTS.SALES_TRANSACTION_COMPLETED:
+                await this._handleSalesTransactionCompleted(data);
+                break;
             case Constants.SPRING_BOARD_WEB_HOOK_EVENTS.ITEM_UPDATED:
                 await this._handleItemCreated(data);
                 break;
@@ -207,7 +210,32 @@ class SpringBoardWebHooksHandler {
         
         } catch (e) {
 	        logger.error({
-                msg: 'SpringBoardWebHooksHandler:_handleCustomerUpdated:; Error occurred',
+                msg: 'SpringBoardWebHooksHandler:_handleCustomerUpdated:: Error occurred',
+                err: e.toString(),
+                // stack: e.stack
+            });
+        } finally {
+            this._springBoardItemProcessed(data);
+        }
+    }
+    
+    async _handleSalesTransactionCompleted (data) {
+        try {
+            // First we need to fetch the Springboard customer because we need customer email to uniquely identify the person in Klaviyo
+            const customer = await this._fetchSpringBoardCustomer(data.customer_id);
+            const { total_paid: amount, completed_at: timestamp} = data;
+            if (customer.email) {
+                await this._klaviyo.trackSalesTransactionCompletedEvent(customer.email, data.public_id, amount, data, timestamp);
+            } else {
+                logger.info({
+                    msg: 'SpringBoardWebHooksHandler:_handleSalesTransactionCompleted:: Customer email is not present. ' +
+                        'Cannot add the event to Klaviyo',
+                    customerId: data.customer_id
+                });
+            }
+        } catch (e) {
+            logger.error({
+                msg: 'SpringBoardWebHooksHandler:_handleSalesTransactionCompleted:: Error occurred',
                 err: e.toString(),
                 // stack: e.stack
             });
@@ -493,6 +521,11 @@ class SpringBoardWebHooksHandler {
         }
 
         return images;
+    }
+    
+    async _fetchSpringBoardCustomer (customerId) {
+        const response = await this._client.get(`/customers/${customerId}`);
+        return response.data;
     }
 
     _hasAllRequiredParameter (payload, images, inventory) {
