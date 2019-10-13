@@ -6,9 +6,9 @@ const _ = require('lodash');
 const qs = require('qs');
 
 // Local includes
-const Constants = require('./utils/constants');
-const { toBase64 } = require('./utils/utils');
-const logger = require('./utils/logger');
+const Constants = require('../utils/constants');
+const { toBase64 } = require('../utils/utils');
+const logger = require('../utils/logger');
 
 class Klaviyo {
     constructor () {

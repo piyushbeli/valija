@@ -3,23 +3,17 @@
 const Shopify = require('shopify-api-node');
 const _ = require('lodash');
 
-const Constants = require('./utils/constants');
-const Utils = require('./utils/utils');
+const Constants = require('../utils/constants');
+const Utils = require('../utils/utils');
 
 class ShopifyService {
-    constructor(config) {
-        this._config = config;
+    constructor() {
         this._shopifyConfig = {
-            shopName: this._config['SHOPIFY_SHOP_NAME'],
-            apiKey: this._config['SHOPIFY_API_KEY'],
-            password: this._config['SHOPIFY_PASSWORD'],
+            shopName: process.env.SHOPIFY_SHOP_NAME,
+            apiKey: process.env.SHOPIFY_API_KEY,
+            password: process.env.SHOPIFY_PASSWORD,
             autoLimit: true
         };
-
-        this._shopify = null;
-    }
-
-    init() {
         this._shopify = new Shopify(this._shopifyConfig);
     }
 
