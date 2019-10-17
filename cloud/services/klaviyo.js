@@ -6,9 +6,10 @@ const _ = require('lodash');
 const qs = require('qs');
 
 // Local includes
-const Constants = require('./utils/constants');
-const { toBase64 } = require('./utils/utils');
-const logger = require('./utils/logger');
+const Constants = require('../utils/constants');
+const { toBase64 } = require('../utils/utils');
+const logger = require('../utils/logger');
+const Utils = require('../utils/utils');
 
 class Klaviyo {
     constructor () {
@@ -74,6 +75,30 @@ class Klaviyo {
             const body = Object.assign({api_key: process.env.KLAVIYO_API_KEY}, this._mapSpringboardCustomerToKlaviyo(data));
             // Please note that this insane API requires strigified data and not an object
             await this._client.put(`v1/person/${id}`, qs.stringify(body));
+        } catch (e) {
+            throw e;
+        }
+    }
+    
+    /**
+     *
+     * @param email: To uniquely identify a person in Klaviyo
+     * @param eventId: springboard's public_id for the event
+     * @param amount: amount
+     * @param activityData: Rest of the data which we want to capture
+     * @param timestamp: when the activity/event happened
+     * @returns {Promise<void>}
+     */
+    async trackSalesTransactionCompletedEvent (email, eventId, amount, activityData, timestamp = Date.now()) {
+        try {
+            // There are 2 type of sales_transaction_complete event  we want to handle. creation and return but not the update.
+            const event = Utils.identifyWebhookEvent(activityData);
+            if (event === Constants.SPRING_BOARD_WEB_HOOK_EVENTS.SALES_TRANSACTION_UPDATED) {
+                return;
+            }
+            const body = {event: Constants.KLAVIYO_EVENTS[event], token: process.env.KLAVIYO_PUBLIC_KEY, customer_properties: {$email: email},
+                properties: activityData, time: timestamp};
+            await this._client.get(`track?data=${toBase64(body)}`);
         } catch (e) {
             throw e;
         }

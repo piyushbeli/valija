@@ -8,7 +8,10 @@ module.exports = {
         ITEM_CREATED: 'item_created',
         ITEM_UPDATED: 'item_updated',
         CUSTOMER_CREATED: 'customer_created',
-        CUSTOMER_UPDATED: 'customer_updated'
+        CUSTOMER_UPDATED: 'customer_updated',
+        SALES_TRANSACTION_COMPLETED: 'sales_transaction_completed',
+        SALES_TRANSACTION_UPDATED: 'sales_transaction_updated',
+        SALES_TRANSACTION_RETURNED: 'sales_transaction_returned'
     },
     
     CLASS_NAME: {
@@ -108,14 +111,19 @@ module.exports = {
     ],
     
     SPRING_BOARD_TO_KLAVIYO_MAPPING: {
-        first_name: '$first_name',
-        last_name: '$last_name',
-        email: '$email',
-        email: 'email',
-        'address.city': '$city',
-        'address.country': '$country',
-        'address.state': '$region',
-        'address.postal_code': '$zip',
-        'custom.phone': '$phone_number'
+            first_name: '$first_name',
+            last_name: '$last_name',
+            email: '$email',
+            email: 'email',
+            'address.city': '$city',
+            'address.country': '$country',
+            'address.state': '$region',
+            'address.postal_code': '$zip',
+            'custom.phone': '$phone_number'
+    },
+    
+    KLAVIYO_EVENTS: {
+        sales_transaction_completed: 'Completed a sales transaction',
+        sales_transaction_returned: 'Returned a sales transaction',
     }
 };

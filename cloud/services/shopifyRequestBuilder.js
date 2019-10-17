@@ -5,8 +5,8 @@ const Axios = require('axios');
 const _ = require('lodash');
 
 // Local includes
-const Constants = require('./utils/constants');
-const logger = require('./utils/logger');
+const Constants = require('../utils/constants');
+const logger = require('../utils/logger');
 
 class ShopifyRequestBuilder {
     constructor () {

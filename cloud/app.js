@@ -10,10 +10,10 @@ const Utils = require('./utils/utils');
 const logger = require('./utils/logger');
 
 // Webhook handlers
-const SpringBoardWebHooksHandler = require('./springBoardWebHooksHandler');
+const SpringBoardWebHooksHandler = require('./routes/springBoardWebHooksHandler');
 
 // Shopify request builder
-const ShopifyRequestBuilder = require('./shopifyRequestBuilder');
+const ShopifyRequestBuilder = require('./services/shopifyRequestBuilder');
 
 
 async function initialize() {

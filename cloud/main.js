@@ -1,5 +1,3 @@
-require('./functions')
-
 /*
 * If you want to use Advanced Cloud Code,
 * exporting of module.exports.app is required.
