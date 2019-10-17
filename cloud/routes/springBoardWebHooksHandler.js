@@ -102,7 +102,11 @@ class SpringBoardWebHooksHandler {
                     await handleCustomerUpdated(data);
                     break;
                 case Constants.SPRING_BOARD_WEB_HOOK_EVENTS.SALES_TRANSACTION_COMPLETED:
+                case Constants.SPRING_BOARD_WEB_HOOK_EVENTS.SALES_TRANSACTION_RETURNED:
                     await handleSalesTransactionCompleted(data);
+                    break;
+                case Constants.SPRING_BOARD_WEB_HOOK_EVENTS.SALES_TRANSACTION_UPDATED:
+                    // Don't take any action but also do not print the error in default case.
                     break;
                 case Constants.SPRING_BOARD_WEB_HOOK_EVENTS.ITEM_UPDATED:
                     await handleItemCreated(data);

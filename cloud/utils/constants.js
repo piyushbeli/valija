@@ -9,7 +9,9 @@ module.exports = {
         ITEM_UPDATED: 'item_updated',
         CUSTOMER_CREATED: 'customer_created',
         CUSTOMER_UPDATED: 'customer_updated',
-        SALES_TRANSACTION_COMPLETED: 'sales_transaction_completed'
+        SALES_TRANSACTION_COMPLETED: 'sales_transaction_completed',
+        SALES_TRANSACTION_UPDATED: 'sales_transaction_updated',
+        SALES_TRANSACTION_RETURNED: 'sales_transaction_returned'
     },
     
     CLASS_NAME: {
@@ -121,6 +123,7 @@ module.exports = {
     },
     
     KLAVIYO_EVENTS: {
-            SALES_TRANSACTION_COMPLETED: 'Completed a sales transaction'
+        sales_transaction_completed: 'Completed a sales transaction',
+        sales_transaction_returned: 'Returned a sales transaction',
     }
 };

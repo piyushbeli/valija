@@ -99,7 +99,13 @@ class Utils {
         if ('first_name' in payload && 'email' in payload) {
             return Constants.SPRING_BOARD_WEB_HOOK_EVENTS.CUSTOMER_UPDATED;
         } else if ('type' in payload && payload.type === 'Ticket') {
-            return Constants.SPRING_BOARD_WEB_HOOK_EVENTS.SALES_TRANSACTION_COMPLETED;
+            if (payload.completed_at === payload.updated_at) {
+                return Constants.SPRING_BOARD_WEB_HOOK_EVENTS.SALES_TRANSACTION_COMPLETED;
+            } else {
+                return Constants.SPRING_BOARD_WEB_HOOK_EVENTS.SALES_TRANSACTION_UPDATED;
+            }
+        } else if ('type' in payload && payload.type === 'Return') {
+            return Constants.SPRING_BOARD_WEB_HOOK_EVENTS.SALES_TRANSACTION_RETURNED;
         } else {
             return Constants.SPRING_BOARD_WEB_HOOK_EVENTS.ITEM_UPDATED;
         }

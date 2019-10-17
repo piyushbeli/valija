@@ -9,6 +9,7 @@ const qs = require('qs');
 const Constants = require('../utils/constants');
 const { toBase64 } = require('../utils/utils');
 const logger = require('../utils/logger');
+const Utils = require('../utils/utils');
 
 class Klaviyo {
     constructor () {
@@ -90,7 +91,12 @@ class Klaviyo {
      */
     async trackSalesTransactionCompletedEvent (email, eventId, amount, activityData, timestamp = Date.now()) {
         try {
-            const body = {event: Constants.KLAVIYO_EVENTS.SALES_TRANSACTION_COMPLETED, token: process.env.KLAVIYO_PUBLIC_KEY, customer_properties: {$email: email},
+            // There are 2 type of sales_transaction_complete event  we want to handle. creation and return but not the update.
+            const event = Utils.identifyWebhookEvent(activityData);
+            if (event === Constants.SPRING_BOARD_WEB_HOOK_EVENTS.SALES_TRANSACTION_UPDATED) {
+                return;
+            }
+            const body = {event: Constants.KLAVIYO_EVENTS[event], token: process.env.KLAVIYO_PUBLIC_KEY, customer_properties: {$email: email},
                 properties: activityData, time: timestamp};
             await this._client.get(`track?data=${toBase64(body)}`);
         } catch (e) {

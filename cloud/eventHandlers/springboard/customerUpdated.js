@@ -1,4 +1,5 @@
 const Klaviyo  = require('../../services/klaviyo');
+const logger = require('../../utils/logger');
 
 class SpringboardCustomerUpdated {
 	constructor() {
@@ -31,4 +32,4 @@ class SpringboardCustomerUpdated {
 }
 
 const instance = new SpringboardCustomerUpdated();
-module.exports = instance.handleCustomerUpdated;
+module.exports = instance.handleCustomerUpdated.bind(instance);

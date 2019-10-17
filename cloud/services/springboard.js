@@ -1,6 +1,8 @@
 const Axios = require('axios');
 
 const Utils = require('../utils/utils');
+const logger = require('../utils/logger');
+
 
 class SpringBoard {
 	constructor() {
@@ -56,7 +58,7 @@ class SpringBoard {
 		return response.data.results;
 	}
 	
-	async _fetchSpringBoardCustomer (customerId) {
+	async fetchSpringBoardCustomer (customerId) {
 		const response = await this._client.get(`/customers/${customerId}`);
 		return response.data;
 	}
