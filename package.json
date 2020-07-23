@@ -14,7 +14,7 @@
     "dotenv": "^8.1.0",
     "lodash": "^4.17.11",
     "node-springboard": "0.0.31",
-    "parse": "~1.8.0",
+    "parse": "~2.10.0",
     "parse-server": "~2.2.2",
     "qs": "^6.9.0",
     "shopify-api-node": "^2.15.3"
