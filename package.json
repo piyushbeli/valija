@@ -15,7 +15,7 @@
     "lodash": "^4.17.11",
     "node-springboard": "0.0.31",
     "parse": "~1.8.0",
-    "parse-server": "~2.2.2",
+    "parse-server": "~4.5.0",
     "qs": "^6.9.0",
     "shopify-api-node": "^2.15.3"
   },
